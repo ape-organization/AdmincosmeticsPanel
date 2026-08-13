@@ -1,0 +1,195 @@
+
+<div class="login-container">
+
+  <!-- Background Decoration -->
+  <div class="background-glow glow-one"></div>
+  <div class="background-glow glow-two"></div>
+
+
+  <mat-card class="login-card">
+
+    <!-- Loading -->
+    <mat-progress-bar
+      mode="indeterminate"
+      *ngIf="isLoading()"
+      class="login-progress">
+    </mat-progress-bar>
+
+
+    <!-- Brand -->
+    <div class="brand">
+
+      <div class="brand-icon">
+        ✦
+      </div>
+
+      <span class="brand-name">
+        Cosmetics
+      </span>
+
+      <span class="admin-label">
+        ADMIN PORTAL
+      </span>
+
+    </div>
+
+
+    <!-- Header -->
+    <mat-card-header>
+
+      <mat-card-title>
+        Welcome Back
+      </mat-card-title>
+
+      <mat-card-subtitle>
+        Sign in to manage your store
+      </mat-card-subtitle>
+
+    </mat-card-header>
+
+
+    <!-- Form -->
+    <mat-card-content>
+
+      <form
+        [formGroup]="loginForm"
+        (ngSubmit)="onSubmit()"
+      >
+
+        <!-- Email -->
+        <mat-form-field
+          appearance="outline"
+          class="full-width"
+        >
+
+          <mat-label>
+            Email Address
+          </mat-label>
+
+          <mat-icon matPrefix>
+            email
+          </mat-icon>
+
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="admin@example.com"
+          />
+
+          <mat-error
+            *ngIf="
+              loginForm.get('email')?.hasError('required')
+            "
+          >
+            Email is required
+          </mat-error>
+
+          <mat-error
+            *ngIf="
+              loginForm.get('email')?.hasError('email')
+            "
+          >
+            Invalid email format
+          </mat-error>
+
+        </mat-form-field>
+
+
+        <!-- Password -->
+        <mat-form-field
+          appearance="outline"
+          class="full-width"
+        >
+
+          <mat-label>
+            Password
+          </mat-label>
+
+          <mat-icon matPrefix>
+            lock
+          </mat-icon>
+
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="password"
+          />
+
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hidePassword = !hidePassword"
+            class="password-toggle"
+          >
+
+            <mat-icon>
+              {{ hidePassword ? 'visibility_off' : 'visibility' }}
+            </mat-icon>
+
+          </button>
+
+          <mat-error
+            *ngIf="
+              loginForm.get('password')?.hasError('required')
+            "
+          >
+            Password is required
+          </mat-error>
+
+        </mat-form-field>
+
+
+        <!-- Error -->
+        <div
+          class="error-container"
+          *ngIf="errorMessage()"
+        >
+
+          <mat-icon>
+            error_outline
+          </mat-icon>
+
+          <span>
+            {{ errorMessage() }}
+          </span>
+
+        </div>
+
+
+        <!-- Login -->
+        <button
+          mat-raised-button
+          type="submit"
+          class="login-button"
+          [disabled]="
+            loginForm.invalid || isLoading()
+          "
+        >
+
+          <mat-icon *ngIf="!isLoading()">
+            login
+          </mat-icon>
+
+          <span>
+            {{ isLoading() ? 'Signing In...' : 'SIGN IN' }}
+          </span>
+
+        </button>
+
+      </form>
+
+    </mat-card-content>
+
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <span>✦</span>
+      <span>Secure Admin Access</span>
+      <span>✦</span>
+    </div>
+
+  </mat-card>
+
+</div>

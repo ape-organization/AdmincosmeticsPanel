@@ -1,0 +1,115 @@
+
+<div class="modal-overlay">
+
+  <div class="modal-container">
+
+    <!-- Header -->
+    <div class="modal-header">
+
+      <div class="header-title">
+
+        <div class="title-icon">
+          <mat-icon>category</mat-icon>
+        </div>
+
+        <div>
+          <h2>
+            {{ data.add ? 'Add New Category' : 'Edit Category' }}
+          </h2>
+
+          <p>
+            {{ data.add
+              ? 'Create a new product category'
+              : 'Update category information'
+            }}
+          </p>
+        </div>
+
+      </div>
+
+
+      <button
+        mat-icon-button
+        type="button"
+        class="close-button"
+        (click)="onCancel()"
+        aria-label="Close"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+
+    </div>
+
+
+    <!-- Form -->
+    <form
+      [formGroup]="categoryForm"
+      (ngSubmit)="onSubmit()"
+    >
+
+      <div class="form-content">
+
+        <mat-form-field appearance="outline">
+
+          <mat-label>
+            Category Name
+          </mat-label>
+
+          <mat-icon matPrefix>
+            category
+          </mat-icon>
+
+          <input
+            matInput
+            formControlName="name"
+            placeholder="Enter category name"
+          >
+
+          <mat-error
+            *ngIf="
+              categoryForm.get('name')?.hasError('required')
+            "
+          >
+            Name is required
+          </mat-error>
+
+        </mat-form-field>
+
+      </div>
+
+
+      <!-- Actions -->
+      <div class="modal-actions">
+
+        <button
+          mat-button
+          type="button"
+          class="cancel-button"
+          (click)="onCancel()"
+        >
+          CANCEL
+        </button>
+
+
+        <button
+          mat-raised-button
+          type="submit"
+          class="submit-button"
+          [disabled]="categoryForm.invalid"
+        >
+
+          <mat-icon>
+            {{ data.add ? 'add' : 'save' }}
+          </mat-icon>
+
+          {{ data.add ? 'CREATE CATEGORY' : 'UPDATE CATEGORY' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

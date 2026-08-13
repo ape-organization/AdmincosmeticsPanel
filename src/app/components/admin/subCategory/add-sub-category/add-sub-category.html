@@ -1,0 +1,157 @@
+<div class="dialog-container">
+
+  <!-- Header -->
+  <div class="dialog-header">
+
+    <div>
+
+      <span class="dialog-label">
+        {{ data?.isEditing ? 'EDIT' : 'NEW' }}
+      </span>
+
+      <h2>
+        {{
+          data?.isEditing
+            ? 'Edit Subcategory'
+            : 'Add Subcategory'
+        }}
+      </h2>
+
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      mat-dialog-close
+    >
+      <mat-icon>
+        close
+      </mat-icon>
+    </button>
+
+  </div>
+
+
+  <!-- Form -->
+  <form
+    [formGroup]="form"
+    (ngSubmit)="save()"
+  >
+
+    <!-- Category -->
+    <mat-form-field
+      appearance="outline"
+      class="full-width"
+    >
+
+      <mat-label>
+        Category
+      </mat-label>
+
+      <mat-select
+        formControlName="categoryId"
+      >
+
+        <mat-option
+          *ngFor="let category of data.categories"
+          [value]="category.id"
+        >
+          {{ category.name }}
+        </mat-option>
+
+      </mat-select>
+
+      <mat-error>
+        Please select a category.
+      </mat-error>
+
+    </mat-form-field>
+
+
+    <!-- Name -->
+    <mat-form-field
+      appearance="outline"
+      class="full-width"
+    >
+
+      <mat-label>
+        Subcategory Name
+      </mat-label>
+
+      <input
+        matInput
+        formControlName="name"
+        placeholder="e.g. Face Creams"
+      />
+
+      <mat-error
+        *ngIf="form.get('name')?.hasError('required')"
+      >
+        Subcategory name is required.
+      </mat-error>
+
+      <mat-error
+        *ngIf="form.get('name')?.hasError('minlength')"
+      >
+        Name must contain at least 2 characters.
+      </mat-error>
+
+    </mat-form-field>
+
+
+    <!-- Description -->
+    <mat-form-field
+      appearance="outline"
+      class="full-width"
+    >
+
+      <mat-label>
+        Description
+      </mat-label>
+
+      <textarea
+        matInput
+        formControlName="description"
+        rows="4"
+        placeholder="Describe this subcategory..."
+      ></textarea>
+
+    </mat-form-field>
+
+
+    <!-- Actions -->
+    <div class="dialog-actions">
+
+      <button
+        type="button"
+        mat-button
+        class="cancel-btn"
+        (click)="cancel()"
+      >
+        Cancel
+      </button>
+
+
+      <button
+        type="submit"
+        mat-raised-button
+        class="save-btn"
+      >
+
+        <mat-icon>
+          {{ data?.isEditing ? 'save' : 'add' }}
+        </mat-icon>
+
+        {{
+          data?.isEditing
+            ? 'Save Changes'
+            : 'Add Subcategory'
+        }}
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>

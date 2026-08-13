@@ -1,0 +1,206 @@
+
+<div class="management-container">
+
+  <!-- Header -->
+  <div class="header-actions">
+
+    <div class="page-heading">
+      <span class="heading-accent">✦</span>
+
+      <div>
+        <h2>Product Management</h2>
+        <p>Manage your cosmetics products and inventory</p>
+      </div>
+    </div>
+
+
+    <button
+      mat-raised-button
+      class="add-product-btn"
+      (click)="showAddProduct()"
+    >
+      <mat-icon>add</mat-icon>
+      Add Product
+    </button>
+
+  </div>
+
+
+  <!-- Products Table -->
+  <div class="table-responsive">
+
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      class="products-table"
+    >
+
+      <!-- Image -->
+      <ng-container matColumnDef="image">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Product
+        </th>
+
+        <td mat-cell *matCellDef="let p">
+
+          <div class="product-image-wrapper">
+
+            <img
+              [src]="apiBaseUrl + p.imageUrl"
+              [alt]="p.name"
+              class="thumb"
+            />
+
+          </div>
+
+        </td>
+
+      </ng-container>
+
+
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Name
+        </th>
+
+        <td mat-cell *matCellDef="let p">
+
+          <span class="product-name">
+            {{ p.name }}
+          </span>
+
+        </td>
+
+      </ng-container>
+
+
+      <!-- Price -->
+      <ng-container matColumnDef="price">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Price
+        </th>
+
+        <td mat-cell *matCellDef="let p">
+
+          <span class="product-price">
+            {{ p.price | currency:'EGP' }}
+          </span>
+
+        </td>
+
+      </ng-container>
+
+
+      <!-- Category -->
+      <ng-container matColumnDef="category">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Category
+        </th>
+
+        <td mat-cell *matCellDef="let p">
+
+          <span class="category-badge">
+            {{ p.categoryName }}
+          </span>
+
+        </td>
+
+      </ng-container>
+
+
+      <!-- Stock -->
+      <ng-container matColumnDef="stock">
+
+        <th mat-header-cell *matHeaderCellDef>
+          Stock
+        </th>
+
+        <td mat-cell *matCellDef="let p">
+
+          <span
+            class="stock-badge"
+            [class.low-stock]="p.stockQuantity < 10"
+            [class.out-stock]="p.stockQuantity === 0"
+          >
+            {{ p.stockQuantity }}
+          </span>
+
+        </td>
+
+      </ng-container>
+
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          class="actions-header"
+        >
+          Actions
+        </th>
+
+        <td
+          mat-cell
+          *matCellDef="let p"
+          class="actions-cell"
+        >
+
+          <button
+            mat-icon-button
+            class="edit-btn"
+            matTooltip="Edit product"
+            (click)="editProduct(p)"
+          >
+
+            <mat-icon>
+              edit
+            </mat-icon>
+
+          </button>
+
+
+          <button
+            mat-icon-button
+            class="delete-btn"
+            matTooltip="Delete product"
+            (click)="deleteProduct(p.id)"
+          >
+
+            <mat-icon>
+              delete
+            </mat-icon>
+
+          </button>
+
+        </td>
+
+      </ng-container>
+
+
+      <!-- Rows -->
+      <tr
+        mat-header-row
+        *matHeaderRowDef="displayedColumns"
+      ></tr>
+
+      <tr
+        mat-row
+        *matRowDef="
+          let row;
+          columns: displayedColumns;
+        "
+        class="product-row"
+      ></tr>
+
+    </table>
+
+  </div>
+
+</div>

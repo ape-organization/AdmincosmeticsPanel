@@ -1,0 +1,66 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(2px);
+}
+
+.confirm-box {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  animation: slide-up 0.3s ease-out;
+
+  .icon-header {
+    margin-bottom: 16px;
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  h3 {
+    margin: 0 0 12px;
+    color: #333;
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: 0 0 24px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+
+    button {
+      min-width: 100px;
+    }
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

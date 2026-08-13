@@ -1,0 +1,493 @@
+
+/* =========================
+   COLOR PALETTE
+========================= */
+
+:host {
+  --navy: #0b1f3a;
+  --navy-light: #122d50;
+  --navy-dark: #071529;
+
+  --gold: #d4af37;
+  --gold-light: #e6c85c;
+  --gold-dark: #b8941f;
+
+  --white: #ffffff;
+
+  --gray: #6f7782;
+  --gray-light: #f5f6f8;
+
+  --border: #e3e6ea;
+}
+
+
+/* =========================
+   CONTAINER
+========================= */
+
+.sidenav-container {
+  min-height: 100vh;
+  background: #f8f9fb;
+}
+
+
+/* =========================
+   SIDENAV
+========================= */
+.item
+{
+  color:var(--white);
+}
+.item:hover
+{
+  color:var(--gold);
+}
+.sidenav {
+  width: 275px;
+
+  background: linear-gradient(
+    180deg,
+    var(--navy-dark),
+    var(--navy)
+  );
+
+  color: var(--white);
+  border: none;
+}
+
+
+/* =========================
+   BRAND
+========================= */
+
+.mobile-brand {
+  height: 90px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 0.7rem;
+
+  padding: 0 1.3rem;
+
+  border-bottom: 1px solid
+    rgba(255, 255, 255, 0.1);
+
+  color: var(--white);
+
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.mobile-brand-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  border: 1px solid
+    rgba(212, 175, 55, 0.4);
+
+  background:
+    rgba(212, 175, 55, 0.1);
+
+  color: var(--gold);
+}
+
+
+/* =========================
+   SIDENAV LINKS
+========================= */
+
+.sidenav mat-nav-list {
+  padding: 1rem 0.75rem;
+}
+
+.sidenav a {
+  height: 48px;
+
+  margin-bottom: 0.3rem;
+
+  border-radius: 7px;
+
+  color: #dce2ea;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.sidenav a:hover {
+  background:
+    rgba(255, 255, 255, 0.07);
+
+  color: var(--white);
+}
+
+.sidenav a.active {
+  background:
+    rgba(212, 175, 55, 0.15);
+
+  color: var(--gold);
+}
+
+.sidenav a mat-icon {
+  color: var(--gray);
+
+  transition:
+    color 0.2s ease;
+}
+
+.sidenav a:hover mat-icon,
+.sidenav a.active mat-icon {
+  color: var(--gold);
+}
+
+.sidenav mat-divider {
+  margin: 1rem 0.5rem;
+
+  border-color:
+    rgba(255, 255, 255, 0.1);
+}
+
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.nav-toolbar {
+  position: sticky;
+
+  top: 0;
+
+  z-index: 1000;
+
+  height: 68px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 2rem;
+
+  background:
+    rgba(255, 255, 255, 0.97);
+
+  color: var(--navy);
+
+  border-bottom:
+    1px solid var(--border);
+
+  box-shadow:
+    0 3px 18px
+    rgba(7, 21, 41, 0.06);
+}
+
+
+/* =========================
+   BRAND
+========================= */
+
+.brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.55rem;
+
+  color: var(--navy);
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition: opacity 0.2s ease;
+}
+
+.brand:hover {
+  opacity: 0.8;
+}
+
+.brand-symbol {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    rgba(212, 175, 55, 0.1);
+
+  border:
+    1px solid
+    rgba(212, 175, 55, 0.35);
+
+  color: var(--gold);
+
+  font-size: 1.1rem;
+}
+
+.brand-name {
+  color: var(--navy);
+
+  font-size: 1.2rem;
+
+  font-weight: 700;
+
+  letter-spacing: 0.4px;
+}
+
+
+/* =========================
+   DESKTOP NAV
+========================= */
+
+.desktop-nav {
+  display: flex;
+
+  align-items: center;
+
+  gap: 2rem;
+
+  margin-left: 3rem;
+}
+
+.desktop-nav a {
+  position: relative;
+
+  padding: 0.5rem 0;
+
+  color: var(--gray);
+
+  text-decoration: none;
+
+  font-size: 0.82rem;
+
+  font-weight: 600;
+
+  transition:
+    color 0.2s ease;
+}
+
+.desktop-nav a:hover {
+  color: var(--navy);
+}
+
+.desktop-nav a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+
+  width: 0;
+  height: 2px;
+
+  background: var(--gold);
+
+  transition:
+    width 0.25s ease;
+}
+
+.desktop-nav a:hover::after,
+.desktop-nav a.active::after {
+  width: 100%;
+}
+
+.desktop-nav a.active {
+  color: var(--navy);
+}
+
+
+/* =========================
+   SPACER
+========================= */
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+
+/* =========================
+   ACTIONS
+========================= */
+
+.nav-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.35rem;
+}
+
+
+/* =========================
+   CART
+========================= */
+
+.cart-button {
+  color: var(--navy);
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.cart-button:hover {
+  color: var(--gold-dark);
+
+  background:
+    rgba(212, 175, 55, 0.08);
+}
+
+
+/* =========================
+   ADMIN
+========================= */
+
+.admin-button {
+  display: inline-flex !important;
+
+  align-items: center;
+
+  gap: 0.3rem;
+
+  color: var(--navy);
+
+  font-size: 0.72rem;
+
+  font-weight: 700;
+}
+
+.admin-button mat-icon {
+  color: var(--gold-dark);
+
+  font-size: 19px;
+}
+
+.admin-button:hover {
+  color: var(--gold-dark);
+
+  background:
+    rgba(212, 175, 55, 0.08);
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+.login-button {
+  min-width: 80px;
+
+  color: var(--white) !important;
+
+  background: var(--navy);
+
+  border-radius: 6px;
+
+  font-size: 0.72rem;
+
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+}
+
+.login-button:hover {
+  background: var(--gold);
+
+  color: var(--navy-dark) !important;
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+.logout-button {
+  display: inline-flex !important;
+
+  align-items: center;
+
+  gap: 0.3rem;
+
+  color: #9b4040;
+
+  font-size: 0.72rem;
+
+  font-weight: 700;
+}
+
+.logout-button mat-icon {
+  font-size: 18px;
+}
+
+.logout-button:hover {
+  background:
+    rgba(179, 58, 58, 0.07);
+}
+
+
+/* =========================
+   MOBILE BUTTON
+========================= */
+
+.menu-button {
+  margin-right: 0.4rem;
+
+  color: var(--navy);
+}
+
+.menu-button:hover {
+  color: var(--gold-dark);
+}
+
+
+/* =========================
+   PAGE CONTENT
+========================= */
+
+.page-content {
+  min-height:
+    calc(100vh - 68px);
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+
+  .nav-toolbar {
+    height: 60px;
+
+    padding: 0 0.8rem;
+  }
+
+  .brand-symbol {
+    width: 34px;
+    height: 34px;
+  }
+
+  .brand-name {
+    font-size: 1.05rem;
+  }
+
+  .page-content {
+    min-height:
+      calc(100vh - 60px);
+  }
+
+  .sidenav {
+    width: 275px;
+  }
+}
