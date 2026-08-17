@@ -1,127 +1,405 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  inject
+} from '@angular/core';
 
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+
+import { MatButtonModule } from '@angular/material/button';
+import {
+  MatDialog,
+  MatDialogModule
+} from '@angular/material/dialog';
+
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+
+import {
+  MatProgressSpinnerModule
+} from '@angular/material/progress-spinner';
+
+import { MatTableModule } from '@angular/material/table';
+
+import {
+  MatTooltipModule
+} from '@angular/material/tooltip';
 
 import { ProductService } from '../../../../services/product.service';
-import { CategoryService } from '../../../../services/category.service';
-import { Product } from '../../../../models/product.model';
-import { Category } from '../../../../models/category.model';
-import { SharedModule } from '../../../../shared/shared.module';
-import { firstValueFrom } from 'rxjs';
 import { AddProductComponent } from '../add-product/add-product.component';
-import { MatTableDataSource } from '@angular/material/table';
-import { ConfirmDeleteComponent } from '../../../../shared/confirm-delete/confirm-delete.component';
-import { MatDialog } from '@angular/material/dialog';
+
+
+// ============================================================
+// MODELS
+// ============================================================
+
+export interface SubCategory {
+  id: number;
+  name: string;
+  categoryId: number;
+  categoryName?: string;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  description?: string | null;
+  price: number;
+  stockQuantity: number;
+  imageUrl?: string | null;
+
+  subCategories: SubCategory[];
+}
+
+
+// ============================================================
+// COMPONENT
+// ============================================================
 
 @Component({
   selector: 'app-product-management',
-  standalone: true,
-  imports: [SharedModule],
-  templateUrl: './product-management.component.html',
-  styleUrl: './product-management.component.scss'
-})
-export class ProductManagementComponent implements OnInit {
-  private fb = inject(FormBuilder);
-  private productService = inject(ProductService);
-  private categoryService = inject(CategoryService);
 
-  private readonly PLACEHOLDER_IMAGE = 'https://placehold.co/200x200?text=Upload+Image';
+  standalone: true,
+
+  imports: [
+    CommonModule,
+    FormsModule,
+
+    MatButtonModule,
+    MatDialogModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    MatTooltipModule
+  ],
+
+  templateUrl:
+    './product-management.component.html',
+
+  styleUrl:
+    './product-management.component.scss'
+})
+export class ProductManagementComponent
+  implements OnInit {
+
+
+  // ==========================================================
+  // SERVICES
+  // ==========================================================
+
+  private readonly productService =
+    inject(ProductService);
+
+  private readonly dialog =
+    inject(MatDialog);
+private readonly cdr = inject(ChangeDetectorRef);
+
+  // ==========================================================
+  // DATA
+  // ==========================================================
 
   products: Product[] = [];
-  categories: Category[] = [];
-  displayedColumns: string[] = ['image', 'name', 'price', 'category', 'stock', 'actions'];
-  
-  editingProductId: number | null = null;
-  productToEdit: any = null;
-  showDeleteConfirm: boolean = false;
-  productIdToDelete: number | null = null;
-  apiBaseUrl ='https://localhost:7256'
-  dataSource = new MatTableDataSource<Product>();
 
-  constructor( private cdr: ChangeDetectorRef,
-    private dialog:MatDialog
-  ) {}
+  filteredProducts: Product[] = [];
 
-  ngOnInit() {
-    this.loadData();
+
+  // IMPORTANT:
+  // These MUST match matColumnDef values
+  // in the HTML.
+displayedColumns: string[] = [
+  'image',
+  'price',
+  'stock',
+  'subCategories',
+  'actions'
+];
+
+
+  // ==========================================================
+  // UI STATE
+  // ==========================================================
+
+  searchTerm = '';
+
+  isLoading = false;
+
+  errorMessage: string | null = null;
+
+
+  // ==========================================================
+  // INIT
+  // ==========================================================
+
+  ngOnInit(): void {
+
+    this.loadProducts();
   }
 
-  async loadData() {
+
+  // ==========================================================
+  // LOAD PRODUCTS
+  // ==========================================================
+
+loadProducts(): void {
+
+  this.isLoading = true;
+  this.errorMessage = null;
+
+
+  this.productService.getProducts().subscribe({
+
+    next: (products) => {
+
+     
+
+      this.products = Array.isArray(products)
+        ? products
+        : [];
+
+      this.filteredProducts = [...this.products];
+
     
-       this.categories = await firstValueFrom(this.categoryService.getCategories());
+
+      this.isLoading = false;
+
+      // Force Angular to refresh the view
       this.cdr.detectChanges();
-this.productService.getProducts().subscribe(products => {
-    this.dataSource.data = products;
+
+    },
+
+    error: (error) => {
+
+      console.error('Error loading products:', error);
+
+      this.products = [];
+      this.filteredProducts = [];
+
+      this.errorMessage =
+        error?.error?.message ||
+        error?.message ||
+        'Failed to load products.';
+
+      this.isLoading = false;
+
+      this.cdr.detectChanges();
+    },
+
+    complete: () => {
+
+
+    }
+
   });
- 
-  }
-showAddProduct()
-{
-  this.productToEdit=null
-  this.editingProductId=null
-this.dialog.open(AddProductComponent,{
-  data:
-  {productID:this.editingProductId || null,
-    product:this.productToEdit,
-  add:true,
-categories:this.categories
-}
-}).afterClosed().subscribe((res:any)=>
-  {
-  if (!res || !res.status) 
-return;
-    this.loadData();
-    this.closeAddProduct();
-  })
 }
 
- 
 
-  editProduct(product: Product) {
-    product.imageUrl=this.apiBaseUrl+product.imageUrl;
-    this.editingProductId = product.id;
-    this.productToEdit = product;
+  // ==========================================================
+  // SEARCH
+  // ==========================================================
 
+  applyFilter(): void {
 
-  this.dialog.open(AddProductComponent,{
-  data:
-  {productID:this.editingProductId || null,
-    product:this.productToEdit,
-  add:false,
-categories:this.categories
+    const term =
+      this.searchTerm
+        .trim()
+        .toLowerCase();
 
-}
-}).afterClosed().subscribe((res:any)=>
-  {
-    if (!res || !res.status) return;
-    this.loadData();
-    this.closeAddProduct();
-  })
+    if (!term) {
 
+      this.filteredProducts = [
+        ...this.products
+      ];
 
+      return;
+    }
+
+    this.filteredProducts =
+      this.products.filter(product => {
+
+        const name =
+          product.name
+            ?.toLowerCase()
+            .includes(term);
+
+        const description =
+          product.description
+            ?.toLowerCase()
+            .includes(term);
+
+        const subCategory =
+          product.subCategories?.some(sc =>
+            sc.name
+              ?.toLowerCase()
+              .includes(term)
+          );
+
+        const category =
+          product.subCategories?.some(sc =>
+            sc.categoryName
+              ?.toLowerCase()
+              .includes(term)
+          );
+
+        return !!(
+          name ||
+          description ||
+          subCategory ||
+          category
+        );
+      });
   }
 
-  closeAddProduct() {
-    this.editingProductId = null;
-    this.productToEdit = null;
-  }
 
- 
-  deleteProduct(id: any) {
-    this.productIdToDelete = id;
-    this.dialog.open(ConfirmDeleteComponent,
-      {
-data:  'Are you sure you want to delete this product?'
-      }
-      ).afterClosed().subscribe((res:any)=>
-      {
-        if(!res || !res.status) return;
-        this.productService.deleteProduct(id).subscribe(() => {
-        this.loadData();
-      })
-    })
+  // ==========================================================
+  // CLEAR SEARCH
+  // ==========================================================
+
+  clearSearch(): void {
+
+    this.searchTerm = '';
+
+    this.applyFilter();
   }
 
 
+  // ==========================================================
+  // ADD
+  // ==========================================================
 
+  addProduct(): void {
+
+    const dialogRef =
+      this.dialog.open(
+        AddProductComponent,
+        {
+          width: '900px',
+          maxWidth: '95vw',
+          maxHeight: '95vh',
+
+          data: {
+            isEditing: false
+          }
+        }
+      );
+
+    dialogRef
+      .afterClosed()
+      .subscribe(result => {
+
+        if (result) {
+          this.loadProducts();
+        }
+
+      });
+  }
+
+
+  // ==========================================================
+  // EDIT
+  // ==========================================================
+
+  editProduct(
+    product: Product
+  ): void {
+
+    const dialogRef =
+      this.dialog.open(
+        AddProductComponent,
+        {
+          width: '900px',
+          maxWidth: '95vw',
+          maxHeight: '95vh',
+
+          data: {
+            isEditing: true,
+            product
+          }
+        }
+      );
+
+    dialogRef
+      .afterClosed()
+      .subscribe(result => {
+
+        if (result) {
+          this.loadProducts();
+        }
+
+      });
+  }
+
+
+  // ==========================================================
+  // DELETE
+  // ==========================================================
+
+  deleteProduct(
+    id: number
+  ): void {
+
+    const confirmed =
+      confirm(
+        'Are you sure you want to delete this product?'
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.productService
+      .deleteProduct(id)
+      .subscribe({
+
+        next: () => {
+
+          this.products =
+            this.products.filter(
+              p => p.id !== id
+            );
+
+          this.applyFilter();
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error deleting product:',
+            error
+          );
+
+          this.errorMessage =
+            error?.error?.message ??
+            'Failed to delete product.';
+        }
+
+      });
+  }
+
+
+  // ==========================================================
+  // IMAGE URL
+  // ==========================================================
+
+  getImageUrl(
+    imageUrl?: string | null
+  ): string {
+
+    if (!imageUrl) {
+
+      return 'assets/images/product-placeholder.png';
+    }
+
+    if (
+      imageUrl.startsWith('http://') ||
+      imageUrl.startsWith('https://')
+    ) {
+
+      return imageUrl;
+    }
+
+    return `https://localhost:7256${imageUrl}`;
+  }
 }

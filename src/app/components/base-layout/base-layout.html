@@ -23,7 +23,7 @@
 
       <a
         mat-list-item
-        routerLink="/products"
+        routerLink="/admin/dashboard"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
         (click)="closeMobileDrawer(drawer)"
@@ -34,7 +34,7 @@
 
       <a
         mat-list-item
-        routerLink="/products"
+        routerLink="/admin/products"
         routerLinkActive="active"
         (click)="closeMobileDrawer(drawer)"
       >
@@ -44,14 +44,31 @@
 
       <a
         mat-list-item
-        routerLink="/cart"
+        routerLink="/admin/categories"
         routerLinkActive="active"
         (click)="closeMobileDrawer(drawer)"
       >
-        <mat-icon matListItemIcon>shopping_bag</mat-icon>
-        <span matListItemTitle class="item">Cart</span>
+        <mat-icon matListItemIcon>category</mat-icon>
+        <span matListItemTitle class="item">Categories</span>
       </a>
-
+<a
+        mat-list-item
+        routerLink="/admin/subCategories"
+        routerLinkActive="active"
+        (click)="closeMobileDrawer(drawer)"
+      >
+        <mat-icon matListItemIcon>subject</mat-icon>
+        <span matListItemTitle class="item">Sub Categories</span>
+      </a>
+      <a
+        mat-list-item
+        routerLink="/admin/users"
+        routerLinkActive="active"
+        (click)="closeMobileDrawer(drawer)"
+      >
+        <mat-icon matListItemIcon>supervised_user_circle</mat-icon>
+        <span matListItemTitle class="item">users</span>
+      </a>
       <mat-divider></mat-divider>
 
      <!--  @if (authService.isAdmin()) {
@@ -124,6 +141,8 @@
 
 
       <!-- Brand -->
+             @if (isMobile()) {
+
       <a
         routerLink="/products"
         class="brand"
@@ -136,38 +155,9 @@
           {{ title() }}
         </span>
       </a>
+    }
 
-
-      <!-- Desktop navigation -->
-      @if (!isMobile()) {
-
-        <nav class="desktop-nav">
-
-          <a
-            routerLink="/products"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-          >
-            Home
-          </a>
-
-          <a
-            routerLink="/products"
-            routerLinkActive="active"
-          >
-            Products
-          </a>
-
-          <a
-            [routerLink]="[]"
-            fragment="footer"
-          >
-            Contact
-          </a>
-
-        </nav>
-
-      }
+    
 
 
       <span class="spacer"></span>

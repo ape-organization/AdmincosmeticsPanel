@@ -1,318 +1,635 @@
+<div class="product-dialog">
 
-<div class="modal-overlay">
+  <!-- ================= HEADER ================= -->
 
-  <div class="modal-container">
+  <div class="dialog-header">
 
-    <!-- Header -->
-    <div class="modal-header">
+    <div class="header-title">
 
-      <div class="header-title">
+      <div class="title-icon">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
 
-        <div class="title-icon">
-          ✦
+      <div>
+
+        <span class="header-eyebrow">
+          PRODUCT MANAGEMENT
+        </span>
+
+        <h2>
+          {{
+            data.isEditing
+              ? 'Edit Product'
+              : 'Add New Product'
+          }}
+        </h2>
+
+        <p>
+          {{
+            data.isEditing
+              ? 'Update your product information'
+              : 'Create a new product for your cosmetics store'
+          }}
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <button
+      mat-icon-button
+      type="button"
+      [disabled]="isSubmitting"
+      (click)="cancel()">
+
+      <mat-icon>
+        close
+      </mat-icon>
+
+    </button>
+
+  </div>
+
+
+  <!-- ================= FORM ================= -->
+
+  <form
+    [formGroup]="productForm"
+    (ngSubmit)="save()">
+
+
+    <!-- ================= IMAGE ================= -->
+
+    <div class="image-section">
+
+      <div
+        class="image-preview"
+        (click)="fileInput.click()">
+
+        <img
+          *ngIf="imagePreview"
+          [src]="imagePreview"
+          alt="Product image"
+        />
+
+        <div
+          class="image-placeholder"
+          *ngIf="!imagePreview">
+
+          <mat-icon>
+            cloud_upload
+          </mat-icon>
+
+          <span>
+            Upload Image
+          </span>
+
         </div>
 
-        <div>
-          <h2>
-            {{ data.add ? 'Add New Product' : 'Edit Product' }}
-          </h2>
 
-          <p>
-            {{ data.add
-              ? 'Add a new product to your store'
-              : 'Update your product information'
-            }}
-          </p>
+        <div class="upload-overlay">
+
+          <mat-icon>
+            cloud_upload
+          </mat-icon>
+
+          <span>
+            Change Image
+          </span>
+
         </div>
 
       </div>
 
 
-      <button
-        mat-icon-button
-        class="close-button"
-        type="button"
-        (click)="onCancel()"
-        aria-label="Close"
-      >
+      <input
+        #fileInput
+        hidden
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        (change)="onFileSelected($event)"
+      />
+
+
+      <div class="image-info">
+
+        <strong>
+          Product Image
+        </strong>
+
+        <span>
+          Click the image to upload
+        </span>
+
+        <small>
+          JPG, PNG or WEBP • Max 5 MB
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================= BASIC INFORMATION ================= -->
+
+    <div class="section-heading">
+
+      <div class="section-icon">
 
         <mat-icon>
-          close
+          info
         </mat-icon>
+
+      </div>
+
+      <div>
+
+        <h3>
+          Basic Information
+        </h3>
+
+        <p>
+          Enter the main product details
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="form-grid">
+
+
+      <!-- NAME -->
+
+      <mat-form-field
+        appearance="outline"
+        class="full-width">
+
+        <mat-label>
+          Product Name
+        </mat-label>
+
+        <mat-icon matPrefix>
+          inventory_2
+        </mat-icon>
+
+        <input
+          matInput
+          formControlName="name"
+          placeholder="e.g. Vitamin C Serum"
+        />
+
+        <mat-error
+          *ngIf="
+            productForm.get('name')?.hasError('required')
+          ">
+
+          Product name is required.
+
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            productForm.get('name')?.hasError('maxlength')
+          ">
+
+          Product name is too long.
+
+        </mat-error>
+
+      </mat-form-field>
+
+
+      <!-- PRICE -->
+
+      <mat-form-field
+        appearance="outline">
+
+        <mat-label>
+          Price
+        </mat-label>
+
+        <span
+          matPrefix
+          class="currency-prefix">
+
+          EGP&nbsp;
+
+        </span>
+
+        <input
+          matInput
+          type="number"
+          min="0"
+          step="0.01"
+          formControlName="price"
+          placeholder="0.00"
+        />
+
+        <mat-error
+          *ngIf="
+            productForm.get('price')?.hasError('required')
+          ">
+
+          Price is required.
+
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            productForm.get('price')?.hasError('min')
+          ">
+
+          Price cannot be negative.
+
+        </mat-error>
+
+      </mat-form-field>
+
+
+      <!-- STOCK -->
+
+      <mat-form-field
+        appearance="outline">
+
+        <mat-label>
+          Stock Quantity
+        </mat-label>
+
+        <mat-icon matPrefix>
+          inventory
+        </mat-icon>
+
+        <input
+          matInput
+          type="number"
+          min="0"
+          formControlName="stockQuantity"
+          placeholder="0"
+        />
+
+        <mat-error
+          *ngIf="
+            productForm
+              .get('stockQuantity')
+              ?.hasError('required')
+          ">
+
+          Stock quantity is required.
+
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            productForm
+              .get('stockQuantity')
+              ?.hasError('min')
+          ">
+
+          Stock cannot be negative.
+
+        </mat-error>
+
+      </mat-form-field>
+
+    </div>
+
+
+    <!-- ================= CLASSIFICATION ================= -->
+
+    <div class="section-heading">
+
+      <div class="section-icon">
+
+        <mat-icon>
+          account_tree
+        </mat-icon>
+
+      </div>
+
+      <div>
+
+        <h3>
+          Product Classification
+        </h3>
+
+        <p>
+          Select the category and subcategories
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="classification-card">
+
+
+      <!-- CATEGORY -->
+
+      <mat-form-field
+        appearance="outline"
+        class="full-width">
+
+        <mat-label>
+          Category
+        </mat-label>
+
+        <mat-icon matPrefix>
+          category
+        </mat-icon>
+
+        <mat-select
+          formControlName="categoryId"
+          (selectionChange)="onCategoryChange($event.value)">
+
+          <mat-option
+            *ngFor="
+              let category of categories
+            "
+            [value]="category.id">
+
+            {{ category.name }}
+
+          </mat-option>
+
+        </mat-select>
+
+        <mat-error
+          *ngIf="
+            productForm
+              .get('categoryId')
+              ?.hasError('required')
+          ">
+
+          Please select a category.
+
+        </mat-error>
+
+      </mat-form-field>
+
+
+      <!-- SUBCATEGORIES -->
+
+      <mat-form-field
+        appearance="outline"
+        class="full-width">
+
+        <mat-label>
+          Subcategories
+        </mat-label>
+
+        <mat-icon matPrefix>
+          label
+        </mat-icon>
+
+        <mat-select
+          formControlName="subCategoryIds"
+          multiple
+          [disabled]="
+            !productForm.get('categoryId')?.value
+          ">
+
+
+          <mat-select-trigger>
+
+            {{
+              productForm
+                .get('subCategoryIds')
+                ?.value?.length || 0
+            }}
+
+            selected
+
+          </mat-select-trigger>
+
+
+          <mat-option
+            *ngFor="
+              let subCategory of filteredSubCategories
+            "
+            [value]="subCategory.id">
+
+            {{ subCategory.name }}
+
+          </mat-option>
+
+
+          <mat-option
+            *ngIf="
+              filteredSubCategories.length === 0 &&
+              productForm.get('categoryId')?.value
+            "
+            disabled>
+
+            No subcategories available.
+
+          </mat-option>
+
+        </mat-select>
+
+
+        <mat-hint
+          *ngIf="
+            !productForm.get('categoryId')?.value
+          ">
+
+          Select a category first.
+
+        </mat-hint>
+
+
+        <mat-hint
+          *ngIf="
+            productForm.get('categoryId')?.value &&
+            filteredSubCategories.length > 0
+          ">
+
+          You can select multiple subcategories.
+
+        </mat-hint>
+
+
+        <mat-error
+          *ngIf="
+            productForm
+              .get('subCategoryIds')
+              ?.hasError('required')
+          ">
+
+          Select at least one subcategory.
+
+        </mat-error>
+
+      </mat-form-field>
+
+
+      <!-- SELECTED SUBCATEGORIES -->
+
+      <div
+        class="selected-subcategories"
+        *ngIf="
+          productForm
+            .get('subCategoryIds')
+            ?.value?.length
+        ">
+
+        <span class="selected-label">
+          SELECTED
+        </span>
+
+
+        <div class="selected-list">
+
+          <span
+            class="selected-chip"
+            *ngFor="
+              let id of
+                productForm
+                  .get('subCategoryIds')
+                  ?.value
+            ">
+
+            {{
+              getSubCategoryName(id)
+            }}
+
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================= DESCRIPTION ================= -->
+
+    <div class="section-heading">
+
+      <div class="section-icon">
+
+        <mat-icon>
+          description
+        </mat-icon>
+
+      </div>
+
+      <div>
+
+        <h3>
+          Description
+        </h3>
+
+        <p>
+          Add information about your product
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <mat-form-field
+      appearance="outline"
+      class="full-width">
+
+      <mat-label>
+        Product Description
+      </mat-label>
+
+      <mat-icon matPrefix>
+        notes
+      </mat-icon>
+
+      <textarea
+        matInput
+        rows="4"
+        formControlName="description"
+        placeholder="Describe the product, benefits, usage instructions..."
+      ></textarea>
+
+    </mat-form-field>
+
+
+    <!-- ================= ERROR ================= -->
+
+    <div
+      class="error-message"
+      *ngIf="errorMessage">
+
+      <mat-icon>
+        error_outline
+      </mat-icon>
+
+      <span>
+        {{ errorMessage }}
+      </span>
+
+    </div>
+
+
+    <!-- ================= ACTIONS ================= -->
+
+    <div class="dialog-actions">
+
+      <button
+        mat-button
+        type="button"
+        class="cancel-button"
+        [disabled]="isSubmitting"
+        (click)="cancel()">
+
+        Cancel
+
+      </button>
+
+
+      <button
+        mat-raised-button
+        type="submit"
+        class="save-button"
+        [disabled]="
+          productForm.invalid ||
+          isSubmitting
+        ">
+
+        <mat-spinner
+          *ngIf="isSubmitting"
+          diameter="18">
+        </mat-spinner>
+
+
+        <mat-icon
+          *ngIf="!isSubmitting">
+
+          {{
+            data.isEditing
+              ? 'save'
+              : 'add'
+          }}
+
+        </mat-icon>
+
+
+        <span>
+          {{
+            isSubmitting
+              ? 'Saving...'
+              : (
+                  data.isEditing
+                    ? 'Save Changes'
+                    : 'Add Product'
+                )
+          }}
+        </span>
 
       </button>
 
     </div>
 
-
-    <!-- Form -->
-    <form
-      [formGroup]="productForm"
-      (ngSubmit)="onSubmit()"
-    >
-
-      <!-- Image -->
-      <div class="image-upload-section">
-
-        <div
-          class="image-preview"
-          (click)="fileInput.click()"
-        >
-
-          <img
-            *ngIf="imagePreview"
-            [src]="imagePreview"
-            alt="Product Preview"
-          >
-
-          <div
-            class="empty-image"
-            *ngIf="!imagePreview"
-          >
-
-            <mat-icon>
-              add_photo_alternate
-            </mat-icon>
-
-            <span>
-              Add Product Image
-            </span>
-
-          </div>
-
-
-          <div class="upload-overlay">
-
-            <mat-icon>
-              cloud_upload
-            </mat-icon>
-
-            <span>
-              Change Image
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <input
-          #fileInput
-          type="file"
-          (change)="onFileSelected($event)"
-          accept="image/*"
-          hidden
-        >
-
-        <span class="image-hint">
-          Click the image to upload
-        </span>
-
-      </div>
-
-
-      <!-- Fields -->
-      <div class="form-grid">
-
-        <!-- Name -->
-        <mat-form-field appearance="outline">
-
-          <mat-label>
-            Product Name
-          </mat-label>
-
-          <input
-            matInput
-            formControlName="name"
-            placeholder="Enter product name"
-          >
-
-          <mat-icon matPrefix>
-            inventory_2
-          </mat-icon>
-
-          <mat-error
-            *ngIf="
-              productForm.get('name')?.hasError('required')
-            "
-          >
-            Name is required
-          </mat-error>
-
-        </mat-form-field>
-
-
-        <!-- Category -->
-        <mat-form-field appearance="outline">
-
-          <mat-label>
-            Category
-          </mat-label>
-
-          <mat-select formControlName="categoryId">
-
-            <mat-option
-              *ngFor="let cat of categories"
-              [value]="cat.id"
-            >
-              {{ cat.name }}
-            </mat-option>
-
-          </mat-select>
-
-          <mat-icon matPrefix>
-            category
-          </mat-icon>
-
-          <mat-error
-            *ngIf="
-              productForm.get('categoryId')?.hasError('required')
-            "
-          >
-            Category is required
-          </mat-error>
-
-        </mat-form-field>
-
-
-        <!-- Price -->
-        <mat-form-field appearance="outline">
-
-          <mat-label>
-            Price
-          </mat-label>
-
-          <input
-            matInput
-            type="number"
-            formControlName="price"
-            placeholder="0.00"
-          >
-
-          <span
-            matPrefix
-            class="currency-prefix"
-          >
-            EGP
-          </span>
-
-          <mat-error
-            *ngIf="
-              productForm.get('price')?.hasError('required')
-            "
-          >
-            Price is required
-          </mat-error>
-
-        </mat-form-field>
-
-
-        <!-- Stock -->
-        <mat-form-field appearance="outline">
-
-          <mat-label>
-            Stock Quantity
-          </mat-label>
-
-          <input
-            matInput
-            type="number"
-            formControlName="stockQuantity"
-            placeholder="0"
-          >
-
-          <mat-icon matPrefix>
-            inventory
-          </mat-icon>
-
-          <mat-error
-            *ngIf="
-              productForm
-                .get('stockQuantity')
-                ?.hasError('required')
-            "
-          >
-            Stock is required
-          </mat-error>
-
-        </mat-form-field>
-
-
-        <!-- Description -->
-        <mat-form-field
-          appearance="outline"
-          class="full-width"
-        >
-
-          <mat-label>
-            Description
-          </mat-label>
-
-          <textarea
-            matInput
-            formControlName="description"
-            rows="3"
-            placeholder="Enter product description"
-          ></textarea>
-
-          <mat-icon matPrefix>
-            description
-          </mat-icon>
-
-        </mat-form-field>
-
-      </div>
-
-
-      <!-- Error -->
-      <div
-        class="error-message"
-        *ngIf="errorMessage"
-      >
-
-        <mat-icon>
-          error_outline
-        </mat-icon>
-
-        <span>
-          {{ errorMessage }}
-        </span>
-
-      </div>
-
-
-      <!-- Actions -->
-      <div class="modal-actions">
-
-        <button
-          mat-button
-          type="button"
-          class="cancel-button"
-          (click)="onCancel()"
-        >
-          CANCEL
-        </button>
-
-
-        <button
-          mat-raised-button
-          type="submit"
-          class="submit-button"
-          [disabled]="productForm.invalid"
-        >
-
-          <mat-icon>
-            {{ data.add ? 'add' : 'save' }}
-          </mat-icon>
-
-          {{ data.add ? 'ADD PRODUCT' : 'UPDATE PRODUCT' }}
-
-        </button>
-
-      </div>
-
-    </form>
-
-  </div>
+  </form>
 
 </div>

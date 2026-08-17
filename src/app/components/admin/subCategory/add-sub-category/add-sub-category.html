@@ -1,6 +1,6 @@
 <div class="dialog-container">
 
-  <!-- Header -->
+  <!-- HEADER -->
   <div class="dialog-header">
 
     <div>
@@ -23,56 +23,61 @@
       mat-icon-button
       type="button"
       mat-dialog-close
-    >
+      aria-label="Close">
+
       <mat-icon>
         close
       </mat-icon>
+
     </button>
 
   </div>
 
 
-  <!-- Form -->
+  <!-- FORM -->
   <form
     [formGroup]="form"
     (ngSubmit)="save()"
   >
 
-    <!-- Category -->
+    <!-- CATEGORY -->
     <mat-form-field
       appearance="outline"
-      class="full-width"
-    >
+      class="full-width">
 
       <mat-label>
         Category
       </mat-label>
 
       <mat-select
-        formControlName="categoryId"
-      >
+        formControlName="categoryId">
 
         <mat-option
-          *ngFor="let category of data.categories"
-          [value]="category.id"
-        >
+          *ngFor="let category of data?.categories || []"
+          [value]="category.id">
+
           {{ category.name }}
+
         </mat-option>
 
       </mat-select>
 
-      <mat-error>
+      <mat-error
+        *ngIf="
+          form.get('categoryId')?.hasError('required')
+        ">
+
         Please select a category.
+
       </mat-error>
 
     </mat-form-field>
 
 
-    <!-- Name -->
+    <!-- NAME -->
     <mat-form-field
       appearance="outline"
-      class="full-width"
-    >
+      class="full-width">
 
       <mat-label>
         Subcategory Name
@@ -85,25 +90,39 @@
       />
 
       <mat-error
-        *ngIf="form.get('name')?.hasError('required')"
-      >
+        *ngIf="
+          form.get('name')?.hasError('required')
+        ">
+
         Subcategory name is required.
+
       </mat-error>
 
       <mat-error
-        *ngIf="form.get('name')?.hasError('minlength')"
-      >
+        *ngIf="
+          form.get('name')?.hasError('minlength')
+        ">
+
         Name must contain at least 2 characters.
+
+      </mat-error>
+
+      <mat-error
+        *ngIf="
+          form.get('name')?.hasError('maxlength')
+        ">
+
+        Name cannot exceed 100 characters.
+
       </mat-error>
 
     </mat-form-field>
 
 
-    <!-- Description -->
+    <!-- DESCRIPTION -->
     <mat-form-field
       appearance="outline"
-      class="full-width"
-    >
+      class="full-width">
 
       <mat-label>
         Description
@@ -116,19 +135,29 @@
         placeholder="Describe this subcategory..."
       ></textarea>
 
+      <mat-error
+        *ngIf="
+          form.get('description')?.hasError('maxlength')
+        ">
+
+        Description cannot exceed 500 characters.
+
+      </mat-error>
+
     </mat-form-field>
 
 
-    <!-- Actions -->
+    <!-- ACTIONS -->
     <div class="dialog-actions">
 
       <button
         type="button"
         mat-button
         class="cancel-btn"
-        (click)="cancel()"
-      >
+        (click)="cancel()">
+
         Cancel
+
       </button>
 
 
@@ -136,7 +165,7 @@
         type="submit"
         mat-raised-button
         class="save-btn"
-      >
+        [disabled]="form.invalid">
 
         <mat-icon>
           {{ data?.isEditing ? 'save' : 'add' }}

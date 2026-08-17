@@ -1,36 +1,154 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Product } from '../models/product.model';
-import { environment } from '../../environments/environment';
+import {
+  Injectable,
+  inject
+} from '@angular/core';
+
+import {
+  HttpClient
+} from '@angular/common/http';
+
+import {
+  Observable
+} from 'rxjs';
+
+
+// ============================================================
+// MODELS
+// ============================================================
+
+export interface SubCategoryResponse {
+
+  id: number;
+
+  name: string;
+
+  categoryId: number;
+
+  categoryName: string;
+}
+
+
+export interface ProductResponse {
+
+  id: number;
+
+  name: string;
+
+  description: string | null;
+
+  price: number;
+
+  stockQuantity: number;
+
+  imageUrl: string | null;
+
+  subCategories: SubCategoryResponse[];
+}
+
+
+// ============================================================
+// SERVICE
+// ============================================================
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = environment.apiBaseUrl+'/products'; // Adjust base URL as needed
 
-  constructor(private http: HttpClient) {}
+  private readonly http =
+    inject(HttpClient);
 
-  getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl);
+  private readonly apiUrl =
+    'https://localhost:7256/api/Products';
+
+
+  // ==========================================================
+  // GET ALL
+  // ==========================================================
+
+  getProducts():
+    Observable<ProductResponse[]> {
+
+    return this.http.get<ProductResponse[]>(
+      this.apiUrl
+    );
   }
 
-  getProduct(id: number): Observable<any> {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
-  }
-checkProductExists(name: any): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/checkProductExists/${name}`);
-  }
-  addProduct(product: FormData): Observable<any> {
-    return this.http.post<Product>(this.apiUrl, product);
+
+  // ==========================================================
+  // GET BY ID
+  // ==========================================================
+
+  getProduct(
+    id: number
+  ): Observable<ProductResponse> {
+
+    return this.http.get<ProductResponse>(
+      `${this.apiUrl}/${id}`
+    );
   }
 
-  updateProduct(id: number, product: FormData): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, product);
+
+  // ==========================================================
+  // CREATE
+  // ==========================================================
+
+  createProduct(
+    formData: FormData
+  ): Observable<ProductResponse> {
+
+    return this.http.post<ProductResponse>(
+      this.apiUrl,
+      formData
+    );
   }
 
-  deleteProduct(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+
+  // ==========================================================
+  // UPDATE
+  // ==========================================================
+
+  updateProduct(
+    id: number,
+    formData: FormData
+  ): Observable<void> {
+
+    return this.http.put<void>(
+      `${this.apiUrl}/${id}`,
+      formData
+    );
+  }
+
+
+  // ==========================================================
+  // DELETE
+  // ==========================================================
+
+  deleteProduct(
+    id: number
+  ): Observable<void> {
+
+    return this.http.delete<void>(
+      `${this.apiUrl}/${id}`
+    );
+  }
+
+
+  // ==========================================================
+  // CHECK EXISTS
+  // ==========================================================
+
+  checkProductExists(
+    name: string
+  ): Observable<boolean> {
+
+    return this.http.get<boolean>(
+      `${this.apiUrl}/exists`,
+      {
+        params: {
+          name
+        }
+      }
+    );
   }
 }

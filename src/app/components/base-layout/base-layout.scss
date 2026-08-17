@@ -143,7 +143,10 @@
 }
 
 .sidenav a:hover mat-icon,
-.sidenav a.active mat-icon {
+.sidenav a.active mat-icon 
+.sidenav a:hover span,
+.sidenav a.active span 
+{
   color: var(--gold);
 }
 
@@ -244,67 +247,6 @@
   letter-spacing: 0.4px;
 }
 
-
-/* =========================
-   DESKTOP NAV
-========================= */
-
-.desktop-nav {
-  display: flex;
-
-  align-items: center;
-
-  gap: 2rem;
-
-  margin-left: 3rem;
-}
-
-.desktop-nav a {
-  position: relative;
-
-  padding: 0.5rem 0;
-
-  color: var(--gray);
-
-  text-decoration: none;
-
-  font-size: 0.82rem;
-
-  font-weight: 600;
-
-  transition:
-    color 0.2s ease;
-}
-
-.desktop-nav a:hover {
-  color: var(--navy);
-}
-
-.desktop-nav a::after {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  bottom: 0;
-
-  width: 0;
-  height: 2px;
-
-  background: var(--gold);
-
-  transition:
-    width 0.25s ease;
-}
-
-.desktop-nav a:hover::after,
-.desktop-nav a.active::after {
-  width: 100%;
-}
-
-.desktop-nav a.active {
-  color: var(--navy);
-}
 
 
 /* =========================

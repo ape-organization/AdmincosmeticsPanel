@@ -214,14 +214,14 @@ table {
 .mat-mdc-header-row {
   height: 54px;
 
-  background:
-    var(--navy);
+  background: #f8f9fb;
+
 }
 
 
 .mat-mdc-header-cell {
-  color:
-    var(--white);
+  color: #6d7685 !important;
+
 
   font-size: 0.72rem;
 
@@ -230,7 +230,7 @@ table {
   letter-spacing: 0.5px;
 
   border-bottom:
-    2px solid var(--gold);
+    2px solid #f8f9fb;
 }
 
 

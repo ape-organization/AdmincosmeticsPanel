@@ -1,46 +1,47 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { AddSubCategory } from '../add-sub-category/add-sub-category';
-interface Category {
-  id: number;
-  name: string;
-  description?: string;
-}
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-interface Subcategory {
-  id: number;
-  name: string;
-  description?: string;
-  categoryId: number;
-  categoryName?: string;
-}
+import { CategoryService } from '../../../../services/category.service';
+import { SubCategoryService } from '../../../../services/sub-category.service';
+
+import { AddSubCategory } from '../add-sub-category/add-sub-category';
+
+import { ConfirmDeleteComponent } from '../../../../shared/confirm-delete/confirm-delete.component';
+
+import { Category } from '../../../../models/category.model';
+import { SubCategory } from '../../../../models/subCategory.model';
+
 @Component({
   selector: 'app-all-sub-category',
-  imports: [ CommonModule,
-    ReactiveFormsModule,
+  standalone: true,
+  imports: [
+    CommonModule,
 
     MatButtonModule,
     MatDialogModule,
     MatIconModule,
     MatTableModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule],
+    MatTooltipModule
+  ],
   templateUrl: './all-sub-category.html',
-  styleUrl: './all-sub-category.scss',
+  styleUrl: './all-sub-category.scss'
 })
-export class AllSubCategory {
+export class AllSubCategory implements OnInit {
 
- private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
+  private readonly categoryService = inject(CategoryService);
+  private readonly subCategoryService = inject(SubCategoryService);
+private readonly cdr = inject(ChangeDetectorRef);
+
+  // =========================================================
+  // TABLE
+  // =========================================================
 
   displayedColumns: string[] = [
     'name',
@@ -49,22 +50,27 @@ export class AllSubCategory {
     'actions'
   ];
 
-  dataSource = new MatTableDataSource<Subcategory>([]);
+  dataSource = new MatTableDataSource<SubCategory>([]);
+
+
+  // =========================================================
+  // DATA
+  // =========================================================
 
   categories: Category[] = [];
 
-  subcategories: Subcategory[] = [];
+  subcategories: SubCategory[] = [];
 
-  subcategoryForm!: FormGroup;
+  loading = false;
 
-  isEditing = false;
+  errorMessage: string | null = null;
 
-  selectedSubcategory: Subcategory | null = null;
 
+  // =========================================================
+  // INIT
+  // =========================================================
 
   ngOnInit(): void {
-
-    this.initializeForm();
 
     this.loadCategories();
 
@@ -73,326 +79,315 @@ export class AllSubCategory {
   }
 
 
-  // ==========================================
-  // FORM
-  // ==========================================
-
-  initializeForm(): void {
-
-    this.subcategoryForm = this.fb.group({
-
-      categoryId: [
-        null,
-        Validators.required
-      ],
-
-      name: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(2)
-        ]
-      ],
-
-      description: [
-        ''
-      ]
-
-    });
-
-  }
-
-
-  // ==========================================
+  // =========================================================
   // LOAD CATEGORIES
-  // ==========================================
+  // =========================================================
 
   loadCategories(): void {
 
-    /*
-      Replace this with your CategoryService.
+    this.categoryService.getCategories()
+      .subscribe({
 
-      Example:
-
-      this.categoryService.getAllCategories()
-        .subscribe(categories => {
+        next: (categories) => {
           this.categories = categories;
-        });
-    */
+ // Tell Angular that the async data has changed
+        this.cdr.detectChanges();
+        },
 
-    this.categories = [
-      {
-        id: 1,
-        name: 'Skincare',
-        description: 'Skin care products'
-      },
-      {
-        id: 2,
-        name: 'Makeup',
-        description: 'Makeup products'
-      },
-      {
-        id: 3,
-        name: 'Hair Care',
-        description: 'Hair care products'
-      },
-      {
-        id: 4,
-        name: 'Fragrance',
-        description: 'Perfumes and fragrances'
-      }
-    ];
+        error: (error) => {
+
+          console.error(
+            'Error loading categories:',
+            error
+          );
+
+          this.errorMessage =
+            'Failed to load categories.';
+ // Tell Angular that the async data has changed
+        this.cdr.detectChanges();
+        }
+
+      });
 
   }
 
 
-  // ==========================================
+  // =========================================================
   // LOAD SUBCATEGORIES
-  // ==========================================
+  // =========================================================
 
   loadSubcategories(): void {
 
-    /*
-      Replace this with your SubcategoryService.
+    this.loading = true;
 
-      Example:
+    this.errorMessage = null;
 
-      this.subcategoryService.getAll()
-        .subscribe(data => {
-          this.subcategories = data;
-          this.dataSource.data = data;
-        });
-    */
+    this.subCategoryService.getAll()
+      .subscribe({
 
-    this.subcategories = [
-      {
-        id: 1,
-        name: 'Face Creams',
-        description: 'Moisturizing and nourishing creams',
-        categoryId: 1,
-        categoryName: 'Skincare'
-      },
+        next: (subcategories) => {
 
-      {
-        id: 2,
-        name: 'Serums',
-        description: 'Face and skin serums',
-        categoryId: 1,
-        categoryName: 'Skincare'
-      },
+          this.subcategories = subcategories;
 
-      {
-        id: 3,
-        name: 'Lipstick',
-        description: 'Lip colors',
-        categoryId: 2,
-        categoryName: 'Makeup'
-      },
+          this.dataSource.data = subcategories;
 
-      {
-        id: 4,
-        name: 'Foundation',
-        description: 'Face foundation products',
-        categoryId: 2,
-        categoryName: 'Makeup'
-      }
-    ];
+          this.loading = false;
 
-    this.dataSource.data = this.subcategories;
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading subcategories:',
+            error
+          );
+
+          this.errorMessage =
+            'Failed to load subcategories.';
+
+          this.loading = false;
+
+        }
+
+      });
 
   }
 
 
-  // ==========================================
-  // ADD
-  // ==========================================
+  // =========================================================
+  // ADD SUBCATEGORY
+  // =========================================================
 
   showAddSubcategory(): void {
 
-    this.isEditing = false;
+    const dialogRef = this.dialog.open(
+      AddSubCategory,
+      {
+        width: '500px',
+        maxWidth: '95vw',
 
-    this.selectedSubcategory = null;
+        data: {
+          categories: this.categories,
 
-    this.subcategoryForm.reset();
+          subcategory: null,
 
-    this.openSubcategoryDialog();
-
-  }
-
-
-  // ==========================================
-  // EDIT
-  // ==========================================
-
-  editSubcategory(
-    subcategory: Subcategory
-  ): void {
-
-    this.isEditing = true;
-
-    this.selectedSubcategory = subcategory;
-
-    this.subcategoryForm.patchValue({
-
-      categoryId: subcategory.categoryId,
-
-      name: subcategory.name,
-
-      description: subcategory.description ?? ''
-
-    });
-
-    this.openSubcategoryDialog();
-
-  }
-
-
-  // ==========================================
-  // DIALOG
-  // ==========================================
-
- openSubcategoryDialog(): void {
-
-  const dialogRef = this.dialog.open(
-    AddSubCategory,
-    {
-      width: '500px',
-      maxWidth: '95vw',
-
-      data: {
-        categories: this.categories,
-
-        subcategory:
-          this.selectedSubcategory,
-
-        isEditing:
-          this.isEditing
+          isEditing: false
+        }
       }
-    }
-  );
+    );
 
 
-  dialogRef.afterClosed()
-    .subscribe(result => {
-
-      if (!result) {
-        return;
-      }
-
-      if (this.isEditing) {
-
-        this.updateSubcategory(result);
-
-      } else {
+    dialogRef.afterClosed()
+      .subscribe((result) => {
+console.log(result)
+        if (!result) {
+          return;
+        }
 
         this.createSubcategory(result);
 
-      }
+      });
 
-    });
-
-}
+  }
 
 
-  // ==========================================
+  // =========================================================
   // CREATE
-  // ==========================================
+  // POST
+  // api/SubCategory
+  // =========================================================
 
- createSubcategory(data: any): void {
+  createSubcategory(info: any): void {
+console.log(info)
+    const request = {
+      categoryId:info. data.categoryId,
+      name:info. data.name,
+      description:info. data.description
+    };
+console.log(request)
 
-  const category = this.categories.find(
-    c => c.id === data.categoryId
-  );
+    this.subCategoryService
+      .create(request)
+      .subscribe({
 
-  const newSubcategory: Subcategory = {
-    id: Date.now(),
-    name: data.name,
-    description: data.description,
-    categoryId: data.categoryId,
-    categoryName: category?.name
-  };
+        next: () => {
 
-  this.subcategories.push(newSubcategory);
+          // Reload from database
+          this.loadSubcategories();
 
-  this.dataSource.data = [
-    ...this.subcategories
-  ];
-}
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error creating subcategory:',
+            error
+          );
+
+          this.errorMessage =
+            error?.error?.message ??
+            'Failed to create subcategory.';
+
+        }
+
+      });
+
+  }
 
 
-  // ==========================================
+  // =========================================================
+  // EDIT SUBCATEGORY
+  // =========================================================
+
+  editSubcategory(
+    subcategory: SubCategory
+  ): void {
+
+    const dialogRef = this.dialog.open(
+      AddSubCategory,
+      {
+        width: '500px',
+        maxWidth: '95vw',
+
+        data: {
+
+          categories: this.categories,
+
+          subcategory: subcategory,
+
+          isEditing: true
+
+        }
+      }
+    );
+
+
+    dialogRef.afterClosed()
+      .subscribe((result) => {
+
+        if (!result) {
+          return;
+        }
+
+        this.updateSubcategory(
+          subcategory.id,
+          result
+        );
+
+      });
+
+  }
+
+
+  // =========================================================
   // UPDATE
-  // ==========================================
+  // PUT
+  // api/SubCategory/{id}
+  // =========================================================
 
- updateSubcategory(data: any): void {
+  updateSubcategory(
+    id: number,
+    info: any
+  ): void {
 
-  if (!this.selectedSubcategory) {
-    return;
+    const request = {
+      categoryId:info. data.categoryId,
+      name:info. data.name,
+      description:info. data.description
+    };
+
+
+    this.subCategoryService
+      .update(id, request)
+      .subscribe({
+
+        next: () => {
+
+          // Reload from database
+          this.loadSubcategories();
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error updating subcategory:',
+            error
+          );
+
+          this.errorMessage =
+            error?.error?.message ??
+            'Failed to update subcategory.';
+
+        }
+
+      });
+
   }
 
-  const category = this.categories.find(
-    c => c.id === data.categoryId
-  );
 
-  const index = this.subcategories.findIndex(
-    item =>
-      item.id === this.selectedSubcategory!.id
-  );
-
-  if (index === -1) {
-    return;
-  }
-
-  this.subcategories[index] = {
-    ...this.subcategories[index],
-
-    name: data.name,
-
-    description: data.description,
-
-    categoryId: data.categoryId,
-
-    categoryName: category?.name
-  };
-
-  this.dataSource.data = [
-    ...this.subcategories
-  ];
-}
-
-
-  // ==========================================
+  // =========================================================
   // DELETE
-  // ==========================================
+  // DELETE
+  // api/SubCategory/{id}
+  // =========================================================
 
   deleteSubcategory(
     id: number
   ): void {
 
-    const confirmed =
-      confirm(
-        'Are you sure you want to delete this subcategory?'
+    const dialogRef =
+      this.dialog.open(
+        ConfirmDeleteComponent,
+        {
+          data:
+            'Are you sure you want to delete this subcategory?'
+        }
       );
 
-    if (!confirmed) {
-      return;
-    }
 
-    this.subcategories =
-      this.subcategories.filter(
-        item => item.id !== id
-      );
+    dialogRef.afterClosed()
+      .subscribe((result: any) => {
 
-    this.dataSource.data = [
-      ...this.subcategories
-    ];
+        if (!result?.status) {
+          return;
+        }
+
+
+        this.subCategoryService
+          .delete(id)
+          .subscribe({
+
+            next: () => {
+
+              // Reload from database
+              this.loadSubcategories();
+
+            },
+
+            error: (error) => {
+
+              console.error(
+                'Error deleting subcategory:',
+                error
+              );
+
+              this.errorMessage =
+                error?.error?.message ??
+                'Failed to delete subcategory.';
+
+            }
+
+          });
+
+      });
 
   }
 
 
-  // ==========================================
+  // =========================================================
   // CATEGORY NAME
-  // ==========================================
+  // =========================================================
 
   getCategoryName(
     categoryId: number

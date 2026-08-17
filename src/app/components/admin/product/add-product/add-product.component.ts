@@ -1,153 +1,732 @@
-import { ChangeDetectorRef, Component, EventEmitter, Inject, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+  inject
+} from '@angular/core';
+
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef
+} from '@angular/material/dialog';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
-import { Category } from '../../../../models/category.model';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { firstValueFrom } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 import { ProductService } from '../../../../services/product.service';
+import { SubCategoryService } from '../../../../services/sub-category.service';
+import { CategoryService } from '../../../../services/category.service';
+
+
+// ============================================================
+// MODELS
+// ============================================================
+
+interface Category {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+interface SubCategory {
+  id: number;
+  name: string;
+  categoryId: number;
+  categoryName?: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  description?: string | null;
+  price: number;
+  stockQuantity: number;
+  imageUrl?: string | null;
+  subCategories?: SubCategory[];
+}
+
+
+// ============================================================
+// COMPONENT
+// ============================================================
 
 @Component({
   selector: 'app-add-product',
   standalone: true,
+
   imports: [
-    CommonModule, 
-    ReactiveFormsModule, 
-    MatButtonModule, 
-    MatFormFieldModule, 
-    MatInputModule, 
-    MatSelectModule, 
-    MatIconModule
+    CommonModule,
+    ReactiveFormsModule,
+
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
+
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'
 })
-export class AddProductComponent {
-  private fb = inject(FormBuilder);
-  private productService = inject(ProductService);
+export class AddProductComponent implements OnInit {
 
- 
-errorMessage: string | null = null;
+  // ==========================================================
+  // SERVICES
+  // ==========================================================
 
-  productForm: FormGroup;
+  private readonly fb = inject(FormBuilder);
+  private readonly productService = inject(ProductService);
+  private readonly categoryService = inject(CategoryService);
+  private readonly subCategoryService = inject(SubCategoryService);
+private readonly cdr =
+  inject(ChangeDetectorRef);
+
+  // ==========================================================
+  // FORM
+  // ==========================================================
+
+  productForm!: FormGroup;
+
+
+  // ==========================================================
+  // DATA
+  // ==========================================================
+
+  categories: Category[] = [];
+
+  filteredSubCategories: SubCategory[] = [];
+
+
+  // ==========================================================
+  // IMAGE
+  // ==========================================================
+
   selectedFile: File | null = null;
-  private readonly PLACEHOLDER_IMAGE = 'https://placehold.co/200x200?text=Upload+Image';
-  imagePreview: string | ArrayBuffer | null = this.PLACEHOLDER_IMAGE;
-  
-categories:any=[]
+
+  readonly PLACEHOLDER_IMAGE =
+    'https://placehold.co/300x300?text=Upload+Image';
+
+  imagePreview: string | ArrayBuffer | null =
+    this.PLACEHOLDER_IMAGE;
+
+
+  // ==========================================================
+  // STATE
+  // ==========================================================
+
+  isSubmitting = false;
+
+  errorMessage: string | null = null;
+
+
+  // ==========================================================
+  // CONSTRUCTOR
+  // ==========================================================
+
   constructor(
-    private dialogRef:MatDialogRef<AddProductComponent>,
-   @Inject(MAT_DIALOG_DATA) public data: any,
-   private cdr: ChangeDetectorRef
-  ) {
+    private readonly dialogRef:
+      MatDialogRef<AddProductComponent>,
+
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      isEditing: boolean;
+      product?: Product;
+    }
+  ) {}
+
+
+  // ==========================================================
+  // INIT
+  // ==========================================================
+
+  ngOnInit(): void {
+
+    this.initializeForm();
+
+    this.loadCategories();
+
+    if (this.data?.isEditing && this.data?.product) {
+
+      this.loadProductData(
+        this.data.product
+      );
+    }
+  }
+
+
+  // ==========================================================
+  // INITIALIZE FORM
+  // ==========================================================
+
+  private initializeForm(): void {
+
     this.productForm = this.fb.group({
-      name: ['', Validators.required],
-      description: [''],
-      price: [0, [Validators.required, Validators.min(0)]],
-      categoryId: [null, Validators.required],
-      stockQuantity: [0, [Validators.required, Validators.min(0)]]
+
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.maxLength(200)
+        ]
+      ],
+
+      price: [
+        null,
+        [
+          Validators.required,
+          Validators.min(0)
+        ]
+      ],
+
+      stockQuantity: [
+        null,
+        [
+          Validators.required,
+          Validators.min(0)
+        ]
+      ],
+
+      categoryId: [
+        null,
+        Validators.required
+      ],
+
+      subCategoryIds: [
+        [],
+        Validators.required
+      ],
+
+      description: [
+        ''
+      ]
+
     });
   }
 
-  ngOnInit() {
-this.categories=this.data.categories   
-    if (!this.data.add) {
-      this.productForm.patchValue(this.data.product);
-      this.imagePreview = this.data.product.imageUrl || this.PLACEHOLDER_IMAGE;
-    }
-  }
 
+  // ==========================================================
+  // LOAD CATEGORIES
+  // ==========================================================
 
+ private loadCategories(): void {
 
-onFileSelected(event: Event) {
-  const input = event.target as HTMLInputElement;
-  if (!input.files?.length) return;
+  this.categoryService
+    .getCategories()
+    .subscribe({
 
-  this.selectedFile = input.files[0];
+      next: (categories: Category[]) => {
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    this.imagePreview = reader.result as string;
-    this.cdr.detectChanges()
-  };
+        this.categories = categories ?? [];
 
-  reader.readAsDataURL(this.selectedFile);
+        const categoryId =
+          this.productForm
+            .get('categoryId')
+            ?.value;
+
+        if (categoryId) {
+
+          this.loadSubCategories(
+            categoryId
+          );
+        }
+
+        // Tell Angular that the async data has changed
+        this.cdr.detectChanges();
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Failed to load categories:',
+          error
+        );
+
+        this.errorMessage =
+          error?.error?.message ??
+          'Failed to load categories.';
+
+        this.cdr.detectChanges();
+      }
+
+    });
 }
 
-  private buildFormData(): FormData {
-  const formData = new FormData();
 
-  Object.keys(this.productForm.controls).forEach(key => {
-    const value = this.productForm.get(key)?.value;
-    if (value !== null && value !== undefined) {
-      formData.append(key, value);
-    }
-  });
+  // ==========================================================
+  // LOAD SUBCATEGORIES
+  // ==========================================================
 
-  if (this.selectedFile) {
-    formData.append('image', this.selectedFile);
-  }
+ private loadSubCategories(
+  categoryId: number,
+  selectedIds: number[] = []
+): void {
 
-  return formData;
-}
-private handleResponse(res: any): void {
-  if (!res) {
-    this.setError(res?.message || 'Something went wrong');
+  if (!categoryId) {
+
+    this.filteredSubCategories = [];
+
+    this.productForm
+      .get('subCategoryIds')
+      ?.setValue([]);
+
+    this.cdr.detectChanges();
+
     return;
   }
 
-  this.dialogRef.close({ status: true });
-}
-private setError(message: string): void {
-  this.errorMessage = message;
-  this.cdr.detectChanges();
-}
-  async onSubmit(): Promise<void> {
-  if (this.productForm.invalid) return;
+  this.subCategoryService
+    .getByCategoryId(categoryId)
+    .subscribe({
 
-  this.errorMessage = '';
+      next: (subCategories: SubCategory[]) => {
 
-  try {
-    const formData = this.buildFormData();
-    const productName = this.productForm.get('name')?.value?.trim();
+        this.filteredSubCategories =
+          subCategories ?? [];
 
-    // 🔹 ADD MODE
-    if (this.data.add) {
+        const validIds =
+          selectedIds.filter(id =>
+            this.filteredSubCategories.some(
+              sc => sc.id === id
+            )
+          );
 
-      const exists = await firstValueFrom(
-        this.productService.checkProductExists(productName)
-      );
+        this.productForm
+          .get('subCategoryIds')
+          ?.setValue(validIds);
 
-      if (exists) {
-        this.setError('Product already exists');
-        return;
+        this.cdr.detectChanges();
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Failed to load subcategories:',
+          error
+        );
+
+        this.filteredSubCategories = [];
+
+        this.productForm
+          .get('subCategoryIds')
+          ?.setValue([]);
+
+        this.errorMessage =
+          error?.error?.message ??
+          'Failed to load subcategories.';
+
+        this.cdr.detectChanges();
       }
 
-      const res = await firstValueFrom(
-        this.productService.addProduct(formData)
-      );
-      this.handleResponse(res);
+    });
+}
+
+
+  // ==========================================================
+  // CATEGORY CHANGE
+  // ==========================================================
+
+  onCategoryChange(
+    categoryId: number
+  ): void {
+
+    this.errorMessage = null;
+
+    this.productForm
+      .get('subCategoryIds')
+      ?.setValue([]);
+
+    this.filteredSubCategories = [];
+
+    if (!categoryId) {
       return;
     }
 
-    // 🔹 UPDATE MODE
-    const res = await firstValueFrom(
-      this.productService.updateProduct(this.data.product.id, formData)
+    this.loadSubCategories(
+      categoryId
+    );
+  }
+
+
+  // ==========================================================
+  // LOAD PRODUCT FOR EDIT
+  // ==========================================================
+
+  private loadProductData(
+    product: Product
+  ): void {
+
+    const selectedSubCategoryIds =
+      product.subCategories
+        ?.map(sc => sc.id) ?? [];
+
+    const categoryId =
+      this.getProductCategoryId(product);
+
+    this.productForm.patchValue({
+
+      name:
+        product.name ?? '',
+
+      price:
+        product.price ?? 0,
+
+      stockQuantity:
+        product.stockQuantity ?? 0,
+
+      categoryId:
+        categoryId,
+
+      description:
+        product.description ?? '',
+
+      subCategoryIds:
+        []
+    });
+
+    if (categoryId) {
+
+      this.loadSubCategories(
+        categoryId,
+        selectedSubCategoryIds
+      );
+    }
+
+    if (product.imageUrl) {
+
+      this.imagePreview =
+        this.getImageUrl(
+          product.imageUrl
+        );
+    }
+  }
+
+
+  // ==========================================================
+  // GET PRODUCT CATEGORY
+  // ==========================================================
+
+  private getProductCategoryId(
+    product: Product
+  ): number | null {
+
+    if (
+      !product.subCategories ||
+      product.subCategories.length === 0
+    ) {
+      return null;
+    }
+
+    return (
+      product.subCategories[0]
+        ?.categoryId ?? null
+    );
+  }
+
+
+  // ==========================================================
+  // FILE SELECTED
+  // ==========================================================
+
+  onFileSelected(
+    event: Event
+  ): void {
+
+    const input =
+      event.target as HTMLInputElement;
+
+    if (
+      !input.files ||
+      input.files.length === 0
+    ) {
+      return;
+    }
+
+    const file =
+      input.files[0];
+
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp'
+    ];
+
+    if (
+      !allowedTypes.includes(
+        file.type
+      )
+    ) {
+
+      this.errorMessage =
+        'Only JPG, PNG and WEBP images are allowed.';
+
+      input.value = '';
+
+      return;
+    }
+
+    const maxSize =
+      5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+
+      this.errorMessage =
+        'Image size must not exceed 5 MB.';
+
+      input.value = '';
+
+      return;
+    }
+
+    this.selectedFile = file;
+
+    this.errorMessage = null;
+
+    const reader =
+      new FileReader();
+
+    reader.onload = () => {
+
+      this.imagePreview =
+        reader.result;
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+
+  // ==========================================================
+  // SAVE
+  // ==========================================================
+
+  save(): void {
+
+    if (this.productForm.invalid) {
+
+      this.productForm.markAllAsTouched();
+
+      return;
+    }
+
+    if (this.isSubmitting) {
+      return;
+    }
+
+    this.errorMessage = null;
+
+    this.isSubmitting = true;
+
+    const value =
+      this.productForm.getRawValue();
+
+    const formData =
+      new FormData();
+
+
+    // ========================================================
+    // BASIC INFORMATION
+    // ========================================================
+
+    formData.append(
+      'Name',
+      String(value.name ?? '').trim()
     );
 
-    this.handleResponse(res);
+    formData.append(
+      'Description',
+      String(value.description ?? '')
+    );
 
-  } catch (error) {
-    this.setError('Something went wrong');
-  }
-}
-  
-  
-    onCancel() {
-     this.dialogRef.close({status:false})
+    formData.append(
+      'Price',
+      String(value.price ?? 0)
+    );
+
+    formData.append(
+      'StockQuantity',
+      String(value.stockQuantity ?? 0)
+    );
+
+
+    // ========================================================
+    // SUBCATEGORIES
+    // ========================================================
+
+    const subCategoryIds: number[] =
+      value.subCategoryIds ?? [];
+
+    subCategoryIds.forEach(id => {
+
+      formData.append(
+        'SubCategoryIds',
+        String(id)
+      );
+    });
+
+
+    // ========================================================
+    // IMAGE
+    // ========================================================
+
+    if (this.selectedFile) {
+
+      formData.append(
+        'Image',
+        this.selectedFile
+      );
     }
+
+
+    // ========================================================
+    // CREATE
+    // ========================================================
+
+    if (!this.data?.isEditing) {
+
+      this.productService
+        .createProduct(formData)
+        .subscribe({
+
+          next: () => {
+
+            this.isSubmitting = false;
+
+            this.dialogRef.close(true);
+          },
+
+          error: (error) => {
+
+            console.error(
+              'Create product error:',
+              error
+            );
+
+            this.errorMessage =
+              error?.error?.message ??
+              'Failed to create product.';
+
+            this.isSubmitting = false;
+          }
+
+        });
+
+      return;
+    }
+
+
+    // ========================================================
+    // UPDATE
+    // ========================================================
+
+    const productId =
+      this.data?.product?.id;
+
+    if (!productId) {
+
+      this.errorMessage =
+        'Product ID is missing.';
+
+      this.isSubmitting = false;
+
+      return;
+    }
+
+    this.productService
+      .updateProduct(
+        productId,
+        formData
+      )
+      .subscribe({
+
+        next: () => {
+
+          this.isSubmitting = false;
+
+          this.dialogRef.close(true);
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Update product error:',
+            error
+          );
+
+          this.errorMessage =
+            error?.error?.message ??
+            'Failed to update product.';
+
+          this.isSubmitting = false;
+        }
+
+      });
+  }
+
+
+  // ==========================================================
+  // CANCEL
+  // ==========================================================
+
+  cancel(): void {
+
+    if (this.isSubmitting) {
+      return;
+    }
+
+    this.dialogRef.close();
+  }
+
+
+  // ==========================================================
+  // SUBCATEGORY NAME
+  // ==========================================================
+
+  getSubCategoryName(
+    id: number
+  ): string {
+
+    return (
+      this.filteredSubCategories
+        .find(
+          subCategory =>
+            subCategory.id === id
+        )
+        ?.name ?? 'Selected'
+    );
+  }
+
+
+  // ==========================================================
+  // IMAGE URL
+  // ==========================================================
+
+  private getImageUrl(
+    imageUrl: string
+  ): string {
+
+    if (
+      imageUrl.startsWith('http://') ||
+      imageUrl.startsWith('https://')
+    ) {
+
+      return imageUrl;
+    }
+
+    return `https://localhost:7256${imageUrl}`;
+  }
 }
