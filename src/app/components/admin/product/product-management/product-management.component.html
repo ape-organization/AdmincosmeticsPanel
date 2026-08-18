@@ -46,7 +46,7 @@
 
   <!-- ================= SEARCH ================= -->
 
-  <div class="toolbar">
+<!--   <div class="toolbar">
 
     <mat-form-field
       appearance="outline"
@@ -82,8 +82,37 @@
 
     </mat-form-field>
 
+  </div> -->
+<div class="search-wrapper">
+
+  <div class="search-box">
+
+    <mat-icon class="search-icon">
+      search
+    </mat-icon>
+
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (input)="applyFilter()"
+      placeholder="Search products..."
+      aria-label="Search products"
+    />
+
+    <button
+      *ngIf="searchTerm"
+      type="button"
+      class="clear-search"
+      (click)="clearSearch()"
+      aria-label="Clear search">
+
+      <mat-icon>close</mat-icon>
+
+    </button>
+
   </div>
 
+</div>
 
   <!-- ================= ERROR ================= -->
 

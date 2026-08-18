@@ -29,7 +29,9 @@
         (click)="closeMobileDrawer(drawer)"
       >
         <mat-icon matListItemIcon>home</mat-icon>
-        <span matListItemTitle class="item">Home</span>
+        <span matListItemTitle class="item"
+       
+        >Home</span>
       </a>
 
       <a
@@ -68,6 +70,15 @@
       >
         <mat-icon matListItemIcon>supervised_user_circle</mat-icon>
         <span matListItemTitle class="item">users</span>
+      </a>
+        <a
+        mat-list-item
+        routerLink="/admin/orders"
+        routerLinkActive="active"
+        (click)="closeMobileDrawer(drawer)"
+      >
+        <mat-icon matListItemIcon>receipt_long</mat-icon>
+        <span matListItemTitle class="item">orders</span>
       </a>
       <mat-divider></mat-divider>
 

@@ -1,304 +1,185 @@
-<div class="dashboard">
 
-  <!-- Header -->
+
+ <div class="dashboard">
+
+
   <div class="dashboard-header">
+
     <div>
-      <span class="dashboard-eyebrow">ADMIN DASHBOARD</span>
-      <h1>Welcome back</h1>
-      <p>Here is an overview of your cosmetics store.</p>
+      <span class="eyebrow">
+        ADMIN DASHBOARD
+      </span>
+
+      <h1>
+        Sales Overview
+      </h1>
+
+      <p>
+        Track your store sales and revenue distribution.
+      </p>
     </div>
 
-   
+    <div class="header-icon">
+      <mat-icon>
+        dashboard
+      </mat-icon>
+    </div>
+
   </div>
 
 
-  <!-- Main Statistics -->
+
+  <div
+    class="error-message"
+    *ngIf="errorMessage">
+
+    <mat-icon>
+      error_outline
+    </mat-icon>
+
+    <span>
+      {{ errorMessage }}
+    </span>
+
+  </div>
+
+
+
   <div class="stats-grid">
 
-    <!-- Total Sales -->
-    <div class="stat-card sales-card">
-      <div class="stat-icon">
-        <mat-icon>shopping_bag</mat-icon>
+
+
+    <div class="stat-card">
+
+      <div class="icon sales-icon">
+        <mat-icon>
+          shopping_bag
+        </mat-icon>
       </div>
 
       <div class="stat-content">
-        <span class="stat-label">Total Sales</span>
-        <h2>{{ totalSales }}</h2>
-        <span class="stat-description">
-          Completed orders
+
+        <span class="label">
+          TOTAL SALES
         </span>
+
+        <strong>
+          {{ totalSales() }}
+        </strong>
+
+        <span class="description">
+          Active orders
+        </span>
+
       </div>
+
     </div>
 
 
-    <!-- Total Revenue -->
-    <div class="stat-card revenue-card">
-      <div class="stat-icon">
-        <mat-icon>payments</mat-icon>
+
+    <div class="stat-card">
+
+      <div class="icon revenue-icon">
+        <mat-icon>
+          payments
+        </mat-icon>
       </div>
 
       <div class="stat-content">
-        <span class="stat-label">Total Sales Revenue</span>
 
-        <h2>
-          {{ totalRevenue}}
-          <small>EGP</small>
-        </h2>
-
-        <span class="stat-description">
-          Money from sold products
+        <span class="label">
+          TOTAL REVENUE
         </span>
+
+        <strong>
+          {{ totalRevenue() | number:'1.2-2' }}
+
+          <small>
+            EGP
+          </small>
+        </strong>
+
+        <span class="description">
+          Revenue from sales
+        </span>
+
       </div>
+
     </div>
 
 
-    <!-- Partner -->
-    <div class="stat-card partner-card">
-      <div class="stat-icon">
-        <mat-icon>handshake</mat-icon>
+
+    <div class="stat-card">
+
+      <div class="icon partner-icon">
+        <mat-icon>
+          handshake
+        </mat-icon>
       </div>
 
       <div class="stat-content">
-        <span class="stat-label">Partner Share</span>
 
-        <h2>
-          {{ partnerShare  }}
-          <small>EGP</small>
-        </h2>
-
-        <span class="stat-description">
-          30% of total sales
+        <span class="label">
+          PARTNER SHARE
         </span>
+
+        <strong>
+          {{ partnerShare() | number:'1.2-2' }}
+
+          <small>
+            EGP
+          </small>
+        </strong>
+
+        <span class="description">
+          30% of total revenue
+        </span>
+
       </div>
 
-      <div class="percentage-badge">
+      <span class="percentage">
         30%
-      </div>
+      </span>
+
     </div>
 
 
-    <!-- Your Share -->
-    <div class="stat-card profit-card">
-      <div class="stat-icon">
-        <mat-icon>account_balance_wallet</mat-icon>
+
+    <div class="stat-card">
+
+      <div class="icon owner-icon">
+        <mat-icon>
+          account_balance_wallet
+        </mat-icon>
       </div>
 
       <div class="stat-content">
-        <span class="stat-label">Your Share</span>
 
-        <h2>
-          {{ yourShare  }}
-          <small>EGP</small>
-        </h2>
-
-        <span class="stat-description">
-          70% of total sales
+        <span class="label">
+          YOUR SHARE
         </span>
+
+        <strong>
+          {{ yourShare() | number:'1.2-2' }}
+
+          <small>
+            EGP
+          </small>
+        </strong>
+
+        <span class="description">
+          70% of total revenue
+        </span>
+
       </div>
 
-      <div class="percentage-badge">
+      <span class="percentage">
         70%
-      </div>
+      </span>
+
     </div>
+
 
   </div>
 
-
-  <!-- Dashboard Grid -->
-  <div class="dashboard-grid">
-
-    <!-- Monthly Sales -->
-    <section class="dashboard-card monthly-sales">
-
-      <div class="card-header">
-        <div>
-          <h2>Monthly Sales</h2>
-          <p>Sales revenue for the current year</p>
-        </div>
-
-        <mat-icon>trending_up</mat-icon>
-      </div>
-
-
-      <div class="chart">
-
-        <div
-          class="chart-column"
-          *ngFor="let month of monthlySales">
-
-          <div class="chart-value">
-            {{ month.value  }}
-          </div>
-
-          <div class="bar-container">
-            <div
-              class="bar"
-              [style.height.%]="getBarHeight(month.value)">
-            </div>
-          </div>
-
-          <span class="month-label">
-            {{ month.month }}
-          </span>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- Sales Summary -->
-    <section class="dashboard-card sales-summary">
-
-      <div class="card-header">
-        <div>
-          <h2>Sales Summary</h2>
-          <p>Money distribution</p>
-        </div>
-
-        <mat-icon>pie_chart</mat-icon>
-      </div>
-
-
-      <div class="summary-total">
-
-        <span>Total Revenue</span>
-
-        <strong>
-          {{ totalRevenue  }}
-          <small>EGP</small>
-        </strong>
-
-      </div>
-
-
-      <div class="summary-item">
-
-        <div class="summary-label">
-          <span class="gold-dot"></span>
-          <span>Partner</span>
-        </div>
-
-        <strong>
-          {{ partnerShare  }} EGP
-        </strong>
-
-      </div>
-
-
-      <div class="progress">
-
-        <div
-          class="progress-partner"
-          style="width: 30%">
-        </div>
-
-        <div
-          class="progress-owner"
-          style="width: 70%">
-        </div>
-
-      </div>
-
-
-      <div class="summary-item">
-
-        <div class="summary-label">
-          <span class="navy-dot"></span>
-          <span>Your Share</span>
-        </div>
-
-        <strong>
-          {{ yourShare  }} EGP
-        </strong>
-
-      </div>
-
-    </section>
-
-  </div>
-
-
-  <!-- Recent Sales -->
-  <section class="dashboard-card recent-sales">
-
-    <div class="card-header">
-
-      <div>
-        <h2>Recent Sales</h2>
-        <p>Latest completed orders</p>
-      </div>
-
-      <button
-        mat-button
-        class="view-all"
-        routerLink="/admin/orders">
-
-        View All
-        <mat-icon>arrow_forward</mat-icon>
-
-      </button>
-
-    </div>
-
-
-    <div class="sales-table-wrapper">
-
-      <table class="sales-table">
-
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          <tr *ngFor="let sale of recentSales">
-
-            <td>
-              <div class="product-cell">
-
-                <div class="product-icon">
-                  <mat-icon>shopping_bag</mat-icon>
-                </div>
-
-                <span>{{ sale.product }}</span>
-
-              </div>
-            </td>
-
-            <td>
-              {{ sale.quantity }}
-            </td>
-
-            <td class="amount">
-              {{ sale.amount  }} EGP
-            </td>
-
-            <td>
-              {{ sale.date  }}
-            </td>
-
-            <td>
-              <span class="status">
-                Completed
-              </span>
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  </section>
-
-</div>
+</div> 

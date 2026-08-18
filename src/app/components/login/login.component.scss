@@ -378,7 +378,6 @@ form {
 
   gap: 0.5rem;
 
-  border: 1px solid var(--gold);
 
   border-radius: 7px;
 
@@ -410,7 +409,8 @@ form {
   font-size: 20px;
 }
 
-
+.login-button span {
+  color: var(--white);}
 .login-button:hover:not(:disabled) {
   background:
     linear-gradient(

@@ -119,11 +119,8 @@ private readonly cdr =
 
   selectedFile: File | null = null;
 
-  readonly PLACEHOLDER_IMAGE =
-    'https://placehold.co/300x300?text=Upload+Image';
+imagePreview: string | ArrayBuffer | null = null;
 
-  imagePreview: string | ArrayBuffer | null =
-    this.PLACEHOLDER_IMAGE;
 
 
   // ==========================================================
@@ -443,72 +440,80 @@ private readonly cdr =
   // FILE SELECTED
   // ==========================================================
 
-  onFileSelected(
-    event: Event
-  ): void {
+onFileSelected(event: Event): void {
 
-    const input =
-      event.target as HTMLInputElement;
+  const input = event.target as HTMLInputElement;
 
-    if (
-      !input.files ||
-      input.files.length === 0
-    ) {
-      return;
-    }
-
-    const file =
-      input.files[0];
-
-    const allowedTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/webp'
-    ];
-
-    if (
-      !allowedTypes.includes(
-        file.type
-      )
-    ) {
-
-      this.errorMessage =
-        'Only JPG, PNG and WEBP images are allowed.';
-
-      input.value = '';
-
-      return;
-    }
-
-    const maxSize =
-      5 * 1024 * 1024;
-
-    if (file.size > maxSize) {
-
-      this.errorMessage =
-        'Image size must not exceed 5 MB.';
-
-      input.value = '';
-
-      return;
-    }
-
-    this.selectedFile = file;
-
-    this.errorMessage = null;
-
-    const reader =
-      new FileReader();
-
-    reader.onload = () => {
-
-      this.imagePreview =
-        reader.result;
-    };
-
-    reader.readAsDataURL(file);
+  if (!input.files || input.files.length === 0) {
+    return;
   }
 
+  const file = input.files[0];
+
+  // ============================
+  // VALIDATE TYPE
+  // ============================
+
+  const allowedTypes = [
+    'image/png',
+    'image/jpeg',
+    'image/webp'
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+
+    alert('Please select a PNG, JPG or WEBP image.');
+
+    input.value = '';
+
+    return;
+  }
+
+  // ============================
+  // VALIDATE SIZE
+  // ============================
+
+  const maxSize = 5 * 1024 * 1024;
+
+  if (file.size > maxSize) {
+
+    alert('Image size must be less than 5 MB.');
+
+    input.value = '';
+
+    return;
+  }
+
+  // ============================
+  // STORE FILE
+  // ============================
+
+  this.selectedFile = file;
+
+  // ============================
+  // CREATE PREVIEW
+  // ============================
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+
+    this.imagePreview = reader.result;
+
+    this.cdr.detectChanges();
+  };
+
+  reader.onerror = () => {
+
+    this.imagePreview = null;
+
+    this.selectedFile = null;
+
+    this.cdr.detectChanges();
+  };
+
+  reader.readAsDataURL(file);
+}
 
   // ==========================================================
   // SAVE

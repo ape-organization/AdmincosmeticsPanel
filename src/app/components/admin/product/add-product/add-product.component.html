@@ -61,74 +61,73 @@
 
     <!-- ================= IMAGE ================= -->
 
-    <div class="image-section">
+  <div class="image-section">
 
-      <div
-        class="image-preview"
-        (click)="fileInput.click()">
+  <div
+    class="image-preview"
+    (click)="fileInput.click()">
 
-        <img
-          *ngIf="imagePreview"
-          [src]="imagePreview"
-          alt="Product image"
-        />
+    <!-- ================= IMAGE ================= -->
 
-        <div
-          class="image-placeholder"
-          *ngIf="!imagePreview">
-
-          <mat-icon>
-            cloud_upload
-          </mat-icon>
-
-          <span>
-            Upload Image
-          </span>
-
-        </div>
+    <img
+      *ngIf="imagePreview"
+      [src]="imagePreview"
+      alt="Product image"
+      class="preview-image"
+    />
 
 
-        <div class="upload-overlay">
+    <!-- ================= EMPTY STATE ================= -->
 
-          <mat-icon>
-            cloud_upload
-          </mat-icon>
+    <div
+      class="image-placeholder"
+      *ngIf="!imagePreview">
 
-          <span>
-            Change Image
-          </span>
+      <mat-icon>
+        cloud_upload
+      </mat-icon>
 
-        </div>
+      <span>
+        Upload Image
+      </span>
 
-      </div>
-
-
-      <input
-        #fileInput
-        hidden
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-        (change)="onFileSelected($event)"
-      />
-
-
-      <div class="image-info">
-
-        <strong>
-          Product Image
-        </strong>
-
-        <span>
-          Click the image to upload
-        </span>
-
-        <small>
-          JPG, PNG or WEBP • Max 5 MB
-        </small>
-
-      </div>
+      <small>
+        JPG, PNG or WEBP
+      </small>
 
     </div>
+
+
+    <!-- ================= HOVER ================= -->
+
+    <div
+      class="upload-overlay"
+      *ngIf="imagePreview">
+
+      <mat-icon>
+        cloud_upload
+      </mat-icon>
+
+      <span>
+        Change Image
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= FILE INPUT ================= -->
+
+  <input
+    #fileInput
+    type="file"
+    hidden
+    accept="image/png,image/jpeg,image/webp"
+    (change)="onFileSelected($event)"
+  />
+
+</div>
 
 
     <!-- ================= BASIC INFORMATION ================= -->
