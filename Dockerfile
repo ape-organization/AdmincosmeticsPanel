@@ -1,31 +1,34 @@
-# Stage 1: Build the Angular application
+# Stage 1: Build Angular application
 FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json first for better caching
+# Copy package files first for better Docker caching
 COPY package.json package-lock.json ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy the rest of the application
+# Copy application source
 COPY . .
 
-# Build the application
+# Build Angular application using production configuration
 RUN npm run build
 
-# Stage 2: Serve with nginx
+# Stage 2: Serve Angular with Nginx
 FROM nginx:alpine
 
-# Copy built artifacts from the build stage
-COPY --from=build /app/dist/Admin_Panel/browser/ /usr/share/nginx/html/
+# Remove default Nginx files
+RUN rm -rf /usr/share/nginx/html/*
 
-# Copy custom nginx config if needed (optional)
-# COPY nginx.conf /etc/nginx/nginx.conf
+# Copy Angular production build
+COPY --from=build /app/dist/pharmacy-ui/browser/ /usr/share/nginx/html/
 
-# Expose port 80
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Nginx port
 EXPOSE 80
 
-# Start nginx
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
